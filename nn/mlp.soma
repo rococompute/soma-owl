@@ -1,0 +1,46 @@
+(** A dense, one-hidden-layer classifier: tanh then softmax. Network
+    construction, forward propagation and full-batch gradient descent are
+    Soma; matrix operations are Owl's, through matrix.definition. *)
+Import matrix.
+
+Record network := {
+  input_weights : matrix.t;
+  hidden_bias : matrix.t;
+  output_weights : matrix.t;
+  output_bias : matrix.t
+}.
+
+initialize (inputs hidden outputs seed : nat) : network :=
+  {| input_weights := matrix.seeded inputs hidden seed;
+     hidden_bias := matrix.zeros 1 hidden;
+     output_weights := matrix.seeded hidden outputs (seed + 1);
+     output_bias := matrix.zeros 1 outputs |}.
+
+hidden_values (net : network) (inputs : matrix.t) : matrix.t :=
+  matrix.tanh (matrix.add (matrix.dot inputs (input_weights net)) (hidden_bias net)).
+
+predict (net : network) (inputs : matrix.t) : matrix.t :=
+  matrix.softmax (matrix.add (matrix.dot (hidden_values net inputs) (output_weights net)) (output_bias net)).
+
+loss (net : network) (inputs targets : matrix.t) : float :=
+  matrix.cross_entropy (predict net inputs) targets.
+
+step (rate : float) (inputs targets : matrix.t) (net : network) : network :=
+  let hidden := hidden_values net inputs in
+  let predicted := matrix.softmax (matrix.add (matrix.dot hidden (output_weights net)) (output_bias net)) in
+  let output_delta := matrix.mean_batch (matrix.sub predicted targets) in
+  let hidden_delta := matrix.mul
+    (matrix.dot output_delta (matrix.transpose (output_weights net)))
+    (matrix.tanh_gradient hidden) in
+  {| input_weights := matrix.sub (input_weights net)
+       (matrix.scale (matrix.dot (matrix.transpose inputs) hidden_delta) rate);
+     hidden_bias := matrix.sub (hidden_bias net) (matrix.scale (matrix.sum_rows hidden_delta) rate);
+     output_weights := matrix.sub (output_weights net)
+       (matrix.scale (matrix.dot (matrix.transpose hidden) output_delta) rate);
+     output_bias := matrix.sub (output_bias net) (matrix.scale (matrix.sum_rows output_delta) rate) |}.
+
+Fixpoint train (epochs : nat) (rate : float) (inputs targets : matrix.t) (net : network) : network :=
+  match epochs with
+  | 0 => net
+  | S remaining => train remaining rate inputs targets (step rate inputs targets net)
+  end.

@@ -1,0 +1,7 @@
+[project]
+name = "soma_owl"
+version = "0.1.0"
+description = "Owl matrices and a small neural network for Soma"
+
+[opam]
+owl = "1.2"

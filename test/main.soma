@@ -1,0 +1,17 @@
+(** Exercises real Owl operations and a nonlinear XOR classifier. *)
+Import matrix nn.mlp.
+
+inputs := matrix.of_rows [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]]%float.
+targets := matrix.of_rows [[1.0, 0.0], [0.0, 1.0], [0.0, 1.0], [1.0, 0.0]]%float.
+initial := initialize 2 8 2 17.
+fitted := train 1500 0.5%float inputs targets initial.
+
+main : string :=
+  let product := matrix.dot (matrix.of_rows [[1.0, 2.0]]%float)
+    (matrix.of_rows [[3.0], [4.0]]%float) in
+  let matrix_ok := match matrix.to_rows product with
+    | [[value]] => PrimFloat.eqb value 11.0%float
+    | _ => false end in
+  if matrix_ok && PrimFloat.ltb (loss fitted inputs targets) 0.02%float
+  then "PASS Owl matrix product and Soma XOR training"
+  else "FAIL Owl matrix product or Soma XOR training".

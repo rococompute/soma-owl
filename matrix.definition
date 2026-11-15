@@ -1,0 +1,25 @@
+(** The small part of Owl.Dense.Matrix.D used by the neural network.
+    matrix.ml adapts Soma lists to Owl's arrays. Matrices are opaque to
+    the proof checker; their operations execute in the compiled program. *)
+OCaml Library "owl".
+
+t : Type.
+of_rows : list (list float) -> t.
+to_rows : t -> list (list float).
+zeros : nat -> nat -> t.
+seeded : nat -> nat -> nat -> t.
+rows : t -> nat.
+cols : t -> nat.
+add : t -> t -> t.
+sub : t -> t -> t.
+mul : t -> t -> t.
+scale : t -> float -> t.
+dot : t -> t -> t.
+transpose : t -> t.
+mean_batch : t -> t.
+sum_rows : t -> t.
+tanh : t -> t.
+tanh_gradient : t -> t.
+softmax : t -> t.
+cross_entropy : t -> t -> float.
+format_float : float -> string.
