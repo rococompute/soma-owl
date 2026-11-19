@@ -15,9 +15,10 @@ not bindings for all of Owl.
 
 ## Use from another project
 
-Use a Soma build with SSH dependency support and authenticate your GitHub SSH
-key or agent. This repository is **private**; the building account must have
-access to `yevbar/soma-owl`.
+Use the canonical HTTPS dependency below. If GitHub restricts repository
+access, authenticate the building account first (for example, `gh auth login`
+and `gh auth setup-git`), or use its authenticated SSH URL. The optional Owl
+example requires this dependency and the native Owl toolchain.
 
 ```toml
 [project]
@@ -25,7 +26,7 @@ name = "my_classifier"
 version = "0.1.0"
 
 [dependencies]
-"git@github.com:yevbar/soma-owl.git" = "0.1.0"
+"https://github.com/rococompute/soma-owl.git" = "0.1.0"
 
 [opam]
 owl = "1.2"
@@ -41,7 +42,7 @@ fitted := train 1500 0.5%float inputs targets initial.
 main := matrix.format_float (loss fitted inputs targets).
 ```
 
-`soma run main.soma` fetches the version tag over SSH and writes `soma.lock`.
+`soma run main.soma` fetches the version tag using Git's configured credentials and writes `soma.lock`.
 Commit that lockfile. `Import soma_owl.nn.mlp.` names a file in the package;
 imports in the package itself remain relative to its own project root.
 
